@@ -7,9 +7,18 @@ set -o pipefail
 BIN_DIR=$(cd $(dirname $0); pwd)
 ROOT_DIR=$(dirname $BIN_DIR)
 
-BUILD_DIR=$1
+APP_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
+
+VAR_PATH="$ENV_DIR/PACKAGE_DIR"
+
+if [[ -f "$VAR_PATH" ]]; then
+	package=$(cat "$VAR_PATH")
+	BUILD_DIR="$APP_DIR/$package"
+else
+	echo "no PACKAGE_DIR config variable is set" && exit 1
+fi
 
 CLANG_VERSION=7.0.1
 
@@ -61,7 +70,12 @@ if [[ -z "$RUN_TESTS" ]]; then
 fi
 
 # Setup application environment
-mkdir -p $BUILD_DIR/.profile.d
+mkdir -p $APP_DIR/.profile.d
 
-set-env PATH '$HOME/.swift-bin:$PATH'
-set-env LD_LIBRARY_PATH '$LD_LIBRARY_PATH:$HOME/.swift-lib'
+set-env() {
+  PROFILE_PATH="$APP_DIR/.profile.d/swift.sh"
+  echo "export $1=$2" >> $PROFILE_PATH
+}
+
+set-env PATH "$HOME/.swift-bin:$APP_DIR/.swift-bin:$PATH"
+set-env LD_LIBRARY_PATH "$LD_LIBRARY_PATH:$HOME/.swift-lib:$APP_DIR/.swift-lib"
