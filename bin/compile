@@ -58,7 +58,7 @@ fi
 
 source "$BIN_DIR/steps/swiftenv"
 
-cd $BUILD_DIR
+cd "$BUILD_DIR"
 source "$BIN_DIR/steps/hooks/pre_compile" "$BUILD_DIR" "$CACHE_DIR" "$ENV_DIR"
 source "$BIN_DIR/steps/ssh"
 source "$BIN_DIR/steps/swift-build"
